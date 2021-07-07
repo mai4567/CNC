@@ -1359,7 +1359,7 @@ std::vector<contour> cutterOffset::fixOffsetPath(contour offset1,contour offset2
 
 ## 源码地址：
 
-https://github.com/mai4567/CNC/tree/main/CNC
+https://github.com/mai4567/CNC
 
 ## 给读者：
 
