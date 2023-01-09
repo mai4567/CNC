@@ -2,19 +2,19 @@
 
 主要功能是传入一个.dxf文件，可以读取该文件显示其外形轮廓，然后通过数控技术的逐点比较法对该路径进行插补，还可以对其进行刀补路径的仿真，可以处理圆弧（没有圆因为时间不够）、直线两种图形之间任意组合，传入的.dxf有大小尺寸要求，在AutoCAD上以原点为基准，图像不大于A0尺寸（1189*841），先上几张图片展示一下程序效果。
 
-<img src="https://github.com/mai4567/CNC-markdown-picture/raw/main/%E5%9B%BE%E7%89%87/1.png?raw=true" style="zoom: 25%;" />
+![1](https://user-images.githubusercontent.com/56599900/211231476-b511531a-7db9-4ef9-99e3-3af6d86639b1.png)
 
-<img src="https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/2.png?raw=true" style="zoom: 25%;" />
+![2](https://user-images.githubusercontent.com/56599900/211231507-d457c008-fe7f-4e32-acbc-8f5a4332237b.png)
 
-<img src="https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/3.png?raw=true" style="zoom: 25%;" />
+![3](https://user-images.githubusercontent.com/56599900/211231517-6d2229bf-2aa8-487a-92ca-f6dc103189e8.png)
 
-<img src="https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/4.png?raw=true" style="zoom: 25%;" />
+![4](https://user-images.githubusercontent.com/56599900/211231524-b9d6131a-e29e-49e3-8cab-14281e9c1632.png)
 
-<img src="https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/5.png?raw=true" style="zoom: 25%;" />
+![5](https://user-images.githubusercontent.com/56599900/211231534-0831af0f-17c5-4bde-81aa-f663768a0e69.png)
 
-<img src="https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/6.png?raw=true" style="zoom: 25%;" />
+![6](https://user-images.githubusercontent.com/56599900/211231539-391016e9-29c0-494c-b3d9-4a6ddd799c05.png)
 
-<img src="https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/7.png?raw=true" style="zoom: 25%;" />
+![7](https://user-images.githubusercontent.com/56599900/211231543-fd245171-9aa5-4f75-8fc5-e085b57bf0d7.png)
 
 ## 前言：
 
@@ -140,7 +140,7 @@ struct contour{
 
 先上图，理解一下，要注意的是，我们的图像坐标系和平时的直角坐标系不一样，y轴的方向是反的，所以我们显示的图和原图是反过来的（无伤大雅我就没有管他），我们推公式的时候也要注意这一点，圆弧插补也是一样的。
 
-<img src="https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/8.jpg?raw=true" style="zoom: 50%;" />
+![8](https://user-images.githubusercontent.com/56599900/211231564-838d87d7-a7d7-42db-84c7-dc9514041965.jpg)
 
 ```cpp
 lineInserter::lineInserter(DL_LineData line){
@@ -242,7 +242,8 @@ void lineInserter::lineInsert(){
 
 圆弧插补不同的是，你的步数不能直接通过起点和终点坐标的X，Y差值的绝对值之和求出，因为你的圆弧有可能大于90度，可能会因为步数缺少而导致插补提前结束。所以我的做法是把弧等分成>=4份，再分别算每一份的步数相加作为总步数。除此以外，圆弧插补还分方向，顺时针和逆时针的公式不一样。将圆心移到坐标零点计算，一旦方向、起点（就是确定了半径）确定，插补终点就确定下来了。
 
-<img src="https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/9.jpg?raw=true" style="zoom:50%;" />
+![9](https://user-images.githubusercontent.com/56599900/211231593-db64771a-7ae2-4558-b396-4407bba71356.jpg)
+
 
 ```cpp
 circleInserter::circleInserter(DL_ArcData circle){
@@ -573,7 +574,7 @@ std::vector<std::vector<contour>> cutterOffset::reorderPattern(){  //将线与�
 
 假如我们知道了刀补是左刀补还是右刀补，也知道了直线的方向和刀补半径，我们就可以直接求出直线基于刀补半径偏移后的直线。但这条直线仅仅是原本直线偏移了一个半径的距离，后续还需要修正。老规矩，先上图帮助大家理解原理。
 
-![](https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/10.jpg?raw=true)
+![10](https://user-images.githubusercontent.com/56599900/211231648-04f92873-08f0-4c58-b0ca-3be1a6ed7dea.jpg)
 
 ```cpp
 DL_LineData cutterOffset::lineOffset(DL_LineData line){
@@ -716,7 +717,7 @@ C刀补修正的一次对两段进行处理，先预处理本段，然后根据�
 
 我们在设计算法的时候要传入两条头尾相接(沿着固定一个方向)的直线，然后通过简单的余弦定理可以直接求出两直线的夹角，但这个角还不是矢量夹角。我们通过求第一条直线的偏移直线得到新的直线1’，通过直线2的终点坐标和直线1的起点坐标作差，求出向量direction，通过直线1’的起点（终点）坐标和直线1的起点（终点）坐标作差，求出向量change。通过两个向量的夹角判断矢量夹角是否需要用360-两直线夹角。
 
-![](https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/11.png?raw=true)
+![11](https://user-images.githubusercontent.com/56599900/211231669-bac957f9-577f-454a-b77e-e046d889747d.png)
 
 ```cpp
 int cutterOffset::countVectorAngle(DL_LineData line1, DL_LineData line2){  //all lines are one way segment
@@ -742,7 +743,7 @@ int cutterOffset::countVectorAngle(DL_LineData line1, DL_LineData line2){  //all
 
 这类带圆弧的矢量夹角的求法其实就是求圆弧的等效直线，转化为直线与直线的矢量夹角求法。这里的求解非常简单，其实就是求与圆弧的相切直线。
 
-![](https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/12.png?raw=true)
+![12](https://user-images.githubusercontent.com/56599900/211231694-c98ffbe2-a7f1-47b0-b3d9-62455bdd606e.png)
 
 ```cpp
 DL_LineData cutterOffset::getArcLine2(DL_ArcData arc){
@@ -802,7 +803,7 @@ C刀补一次读取两段，我们遍历由偏移图形组成的偏移路径，�
 
 #### 直线与直线转接：
 
-![](https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/13.png?raw=true)
+![13](https://user-images.githubusercontent.com/56599900/211231713-567dc0bd-dffa-4508-9d27-3c2fa549b819.png)
 
 ##### 缩短型、增长型：
 
@@ -829,7 +830,7 @@ DL_PointData cutterOffset::getCrossPoint(DL_LineData line1,DL_LineData line2){
 
 #### 直线与圆弧转接（圆弧与直线转接）：
 
-![](https://github.com/mai4567/CNC-markdown-picture/blob/main/%E5%9B%BE%E7%89%87/14.png?raw=true)
+![14](https://user-images.githubusercontent.com/56599900/211231727-94ef1ffc-47ec-4f46-93d9-d0f70e42fc2c.png)
 
 ##### 缩短型、增长型：
 
